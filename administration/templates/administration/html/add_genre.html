@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Додавання жанру{% endblock %}
+
+{% block section %}
+<div class="container mt-4">
+    <h1 class="mb-4">Додавання нового жанру</h1>
+    
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <a href="{% url 'add_book' %}" class="btn btn-secondary">
+                <i class="bi bi-arrow-left"></i> Повернутися до додавання книги
+            </a>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-md-6 mx-auto">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Інформація про жанр</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="genre_name" class="form-label">Назва жанру <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="genre_name" name="genre_name" required>
+                        </div>
+                        
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a href="{% url 'add_book' %}" class="btn btn-outline-secondary">Скасувати</a>
+                            <button type="submit" class="btn btn-primary">Додати жанр</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

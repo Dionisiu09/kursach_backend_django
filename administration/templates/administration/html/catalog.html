@@ -1,0 +1,340 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Каталог{% endblock %}
+
+{% block section %}
+    <div class="container mt-4">
+
+        <h2 class="mb-4">Фільтрація книг</h2>
+
+        <div class="card mb-4">
+            <div class="card-body">
+                <form method="get" class="row g-3">
+                    <div class="col-md-4">
+                        <label for="search" class="form-label">Пошук за назвою</label>
+                        <input type="text" class="form-control" id="search" name="search"
+                               value="{{ request.GET.search }}" placeholder="Введіть назву книги">
+                    </div>
+                    <div class="col-md-3">
+                        <label for="author" class="form-label">Автор</label>
+                        <select class="form-select" id="author" name="author">
+                            <option value="">Всі автори</option>
+                            {% for author in authors %}
+                                <option value="{{ author.id }}"
+                                        {% if request.GET.author == author.id|stringformat:"i" %}selected{% endif %}>
+                                    {{ author }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label for="min_pages" class="form-label">Мін. сторінок</label>
+                        <input type="number" class="form-control" id="min_pages" name="min_pages"
+                               value="{{ request.GET.min_pages }}" min="1">
+                    </div>
+                    <div class="col-md-2">
+                        <label for="max_pages" class="form-label">Макс. сторінок</label>
+                        <input type="number" class="form-control" id="max_pages" name="max_pages"
+                               value="{{ request.GET.max_pages }}" min="1">
+                    </div>
+                    <div class="col-md-3">
+                        <label for="start_date" class="form-label">Дата від</label>
+                        <input type="date" class="form-control" id="start_date" name="start_date"
+                               value="{{ request.GET.start_date }}">
+                    </div>
+                    <div class="col-md-3">
+                        <label for="end_date" class="form-label">Дата до</label>
+                        <input type="date" class="form-control" id="end_date" name="end_date"
+                               value="{{ request.GET.end_date }}">
+                    </div>
+                    <div class="col-md-3">
+                        <label for="availability" class="form-label">Доступність</label>
+                        <select class="form-select" id="availability" name="availability">
+                            <option value="">Всі книги</option>
+                            <option value="available"
+                                    {% if request.GET.availability == 'available' %}selected{% endif %}>Доступні
+                            </option>
+                            <option value="unavailable"
+                                    {% if request.GET.availability == 'unavailable' %}selected{% endif %}>Недоступні
+                            </option>
+                        </select>
+                    </div>
+                    {% if not user.is_staff %}
+                        <div class="col-md-3">
+                            <label for="reserved" class="form-label">Бронювання</label>
+                            <select class="form-select" id="reserved" name="reserved">
+                                <option value="">Всі книги</option>
+                                <option value="reserved" {% if request.GET.reserved == 'reserved' %}selected{% endif %}>
+                                    Зарезервовані мною
+                                </option>
+                                <option value="not_reserved"
+                                        {% if request.GET.reserved == 'not_reserved' %}selected{% endif %}>
+                                    Незарезервовані
+                                </option>
+                            </select>
+                        </div>
+                    {% endif %}
+                    <div class="col-12">
+                        <button type="submit" class="btn btn-primary">Застосувати фільтри</button>
+                        <a href="{% url 'catalog' %}" class="btn btn-secondary">Скинути</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <h1 class="mb-1">Каталог книг</h1>
+        {% if not user.is_authenticated %}
+            <p class="d-block text-muted mt-1">Для бронювання книг, будь ласка, <a href="{% url 'login' %}">авторизуйтесь</a>.
+            </p>
+        {% endif %}
+
+        {% if user.is_staff %}
+            <div class="mb-3">
+                <a href="{% url 'add_book' %}" class="btn btn-success">
+                    <i class="bi bi-plus-circle"></i> Додати нову книгу
+                </a>
+            </div>
+        {% endif %}
+
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead>
+                <tr>
+                    <th>Обкладинка</th>
+                    <th>
+                        <a href="?sort=title&order={% if sort_by == 'title' and order == 'asc' %}desc{% else %}asc{% endif %}&items_per_page=
+
+
+
+                                {{ items_per_page }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.author %}&author={{ request.GET.author }}{% endif %}{% if request.GET.min_pages %}&min_pages={{ request.GET.min_pages }}{% endif %}{% if request.GET.max_pages %}&max_pages={{ request.GET.max_pages }}{% endif %}{% if request.GET.start_date %}&start_date={{ request.GET.start_date }}{% endif %}{% if request.GET.end_date %}&end_date={{ request.GET.end_date }}{% endif %}{% if request.GET.availability %}&availability={{ request.GET.availability }}{% endif %}">
+                            Назва
+                            {% if sort_by == 'title' %}
+                                {% if order == 'asc' %}↑{% else %}↓{% endif %}
+                            {% endif %}
+                        </a>
+                    </th>
+                    <th>
+                        <a href="?sort=author&order={% if sort_by == 'author' and order == 'asc' %}desc{% else %}asc{% endif %}&items_per_page=
+
+
+
+                                {{ items_per_page }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.author %}&author={{ request.GET.author }}{% endif %}{% if request.GET.min_pages %}&min_pages={{ request.GET.min_pages }}{% endif %}{% if request.GET.max_pages %}&max_pages={{ request.GET.max_pages }}{% endif %}{% if request.GET.start_date %}&start_date={{ request.GET.start_date }}{% endif %}{% if request.GET.end_date %}&end_date={{ request.GET.end_date }}{% endif %}{% if request.GET.availability %}&availability={{ request.GET.availability }}{% endif %}">
+                            Автор
+                            {% if sort_by == 'author' %}
+                                {% if order == 'asc' %}↑{% else %}↓{% endif %}
+                            {% endif %}
+                        </a>
+                    </th>
+                    <th>
+                        <a href="?sort=genre&order={% if sort_by == 'genre' and order == 'asc' %}desc{% else %}asc{% endif %}&items_per_page=
+
+
+
+                                {{ items_per_page }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.author %}&author={{ request.GET.author }}{% endif %}{% if request.GET.min_pages %}&min_pages={{ request.GET.min_pages }}{% endif %}{% if request.GET.max_pages %}&max_pages={{ request.GET.max_pages }}{% endif %}{% if request.GET.start_date %}&start_date={{ request.GET.start_date }}{% endif %}{% if request.GET.end_date %}&end_date={{ request.GET.end_date }}{% endif %}{% if request.GET.availability %}&availability={{ request.GET.availability }}{% endif %}">
+                            Жанр
+                            {% if sort_by == 'genre' %}
+                                {% if order == 'asc' %}↑{% else %}↓{% endif %}
+                            {% endif %}
+                        </a>
+                    </th>
+                    <th>
+                        <a href="?sort=publication_date&order={% if sort_by == 'publication_date' and order == 'asc' %}desc{% else %}asc{% endif %}&items_per_page=
+
+
+
+                                {{ items_per_page }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.author %}&author={{ request.GET.author }}{% endif %}{% if request.GET.min_pages %}&min_pages={{ request.GET.min_pages }}{% endif %}{% if request.GET.max_pages %}&max_pages={{ request.GET.max_pages }}{% endif %}{% if request.GET.start_date %}&start_date={{ request.GET.start_date }}{% endif %}{% if request.GET.end_date %}&end_date={{ request.GET.end_date }}{% endif %}{% if request.GET.availability %}&availability={{ request.GET.availability }}{% endif %}">
+                            Дата публікації
+                            {% if sort_by == 'publication_date' %}
+                                {% if order == 'asc' %}↑{% else %}↓{% endif %}
+                            {% endif %}
+                        </a>
+                    </th>
+                    <th>
+                        <a href="?sort=page_count&order={% if sort_by == 'page_count' and order == 'asc' %}desc{% else %}asc{% endif %}&items_per_page=
+
+
+
+                                {{ items_per_page }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.author %}&author={{ request.GET.author }}{% endif %}{% if request.GET.min_pages %}&min_pages={{ request.GET.min_pages }}{% endif %}{% if request.GET.max_pages %}&max_pages={{ request.GET.max_pages }}{% endif %}{% if request.GET.start_date %}&start_date={{ request.GET.start_date }}{% endif %}{% if request.GET.end_date %}&end_date={{ request.GET.end_date }}{% endif %}{% if request.GET.availability %}&availability={{ request.GET.availability }}{% endif %}">
+                            Сторінок
+                            {% if sort_by == 'page_count' %}
+                                {% if order == 'asc' %}↑{% else %}↓{% endif %}
+                            {% endif %}
+                        </a>
+                    </th>
+                    <th>
+                        <a href="?sort=available&order={% if sort_by == 'available' and order == 'asc' %}desc{% else %}asc{% endif %}&items_per_page=
+
+
+
+                                {{ items_per_page }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.author %}&author={{ request.GET.author }}{% endif %}{% if request.GET.min_pages %}&min_pages={{ request.GET.min_pages }}{% endif %}{% if request.GET.max_pages %}&max_pages={{ request.GET.max_pages }}{% endif %}{% if request.GET.start_date %}&start_date={{ request.GET.start_date }}{% endif %}{% if request.GET.end_date %}&end_date={{ request.GET.end_date }}{% endif %}{% if request.GET.availability %}&availability={{ request.GET.availability }}{% endif %}">
+                            Доступно
+                            {% if sort_by == 'available' %}
+                                {% if order == 'asc' %}↑{% else %}↓{% endif %}
+                            {% endif %}
+                        </a>
+                    </th>
+                    <th>Дії</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for book in books %}
+                    <tr>
+                        <td>
+                            {% if book.cover_image %}
+                                <img src="{{ book.cover_image.url }}" alt="{{ book.title }}" class="img-thumbnail"
+                                     style="max-width: 100px;">
+                            {% else %}
+                                <img src="https://placehold.co/100x150?text=No+Cover" alt="Немає обкладинки"
+                                     class="img-thumbnail">
+                            {% endif %}
+                        </td>
+                        <td>{{ book.title }}</td>
+                        <td>{{ book.author }}</td>
+                        <td>{{ book.genre }}</td>
+                        <td>{{ book.publication_date|date:"Y" }}</td>
+                        <td>{{ book.page_count }}</td>
+                        <td>{{ book.get_available_quantity }}</td>
+                        <td>
+                            {% if user.is_staff %}
+                                <form method="post" action="{% url 'delete_book' book.id %}" class="d-inline"
+                                      onsubmit="return confirm('Ви впевнені, що хочете видалити цю книгу?');">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-sm btn-danger">Видалити</button>
+                                </form>
+                            {% else %}
+                                {% if book.id in user_reserved_books %}
+                                    <button type="button" class="btn btn-sm btn-success" data-bs-toggle="modal"
+                                            data-bs-target="#cancelModal{{ book.id }}">
+                                        Зарезервовано
+                                    </button>
+                                    <div class="modal fade" id="cancelModal{{ book.id }}" tabindex="-1"
+                                         aria-labelledby="cancelModalLabel{{ book.id }}" aria-hidden="true">
+                                        <div class="modal-dialog">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="cancelModalLabel{{ book.id }}">
+                                                        Підтвердження скасування</h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                            aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    Ви впевнені, що хочете скасувати бронювання книги "{{ book.title }}"?
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary"
+                                                            data-bs-dismiss="modal">Скасувати скасування
+                                                    </button>
+                                                    <form method="post" action="{% url 'cancel_reservation' book.id %}"
+                                                          class="d-inline">
+                                                        {% csrf_token %}
+                                                        <button type="submit" class="btn btn-danger">Скасувати
+                                                            бронювання
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% elif book.get_available_quantity > 0 %}
+                                    {% if user.is_authenticated and not user.is_staff and not user.is_superuser %}
+                                        <form method="post" action="{% url 'reserve_book' book.id %}" class="d-inline">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-sm btn-primary">Забронювати</button>
+                                        </form>
+                                    {% else %}
+                                        <button class="btn btn-sm btn-secondary" disabled>Забронювати</button>
+                                    {% endif %}
+                                {% else %}
+                                    <button class="btn btn-sm btn-secondary" disabled>Недоступно</button>
+                                {% endif %}
+                            {% endif %}
+                        </td>
+                        {% if user.is_staff %}
+                            <td>
+                                <a href="{% url 'edit_book' book.id %}" class="btn btn-sm btn-primary">Редагувати</a>
+                            </td>
+                        {% endif %}
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {% if books.paginator.num_pages > 1 %}
+            <nav aria-label="Page navigation">
+                <ul class="pagination justify-content-center">
+                    {% if books.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page=1&sort={{ sort_by }}&order={{ order }}&items_per_page=
+
+
+
+                                    {{ items_per_page }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.author %}&author={{ request.GET.author }}{% endif %}{% if request.GET.min_pages %}&min_pages={{ request.GET.min_pages }}{% endif %}{% if request.GET.max_pages %}&max_pages={{ request.GET.max_pages }}{% endif %}{% if request.GET.start_date %}&start_date={{ request.GET.start_date }}{% endif %}{% if request.GET.end_date %}&end_date={{ request.GET.end_date }}{% endif %}{% if request.GET.availability %}&availability={{ request.GET.availability }}{% endif %}">Перша</a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link"
+                               href="?page={{ books.previous_page_number }}&sort={{ sort_by }}&order={{ order }}&items_per_page=
+
+
+
+                                       {{ items_per_page }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.author %}&author={{ request.GET.author }}{% endif %}{% if request.GET.min_pages %}&min_pages={{ request.GET.min_pages }}{% endif %}{% if request.GET.max_pages %}&max_pages={{ request.GET.max_pages }}{% endif %}{% if request.GET.start_date %}&start_date={{ request.GET.start_date }}{% endif %}{% if request.GET.end_date %}&end_date={{ request.GET.end_date }}{% endif %}{% if request.GET.availability %}&availability={{ request.GET.availability }}{% endif %}">Попередня</a>
+                        </li>
+                    {% endif %}
+
+                    {% for num in books.paginator.page_range %}
+                        {% if books.number == num %}
+                            <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                        {% elif num > books.number|add:'-3' and num < books.number|add:'3' %}
+                            <li class="page-item">
+                                <a class="page-link"
+                                   href="?page={{ num }}&sort={{ sort_by }}&order={{ order }}&items_per_page=
+
+
+
+                                           {{ items_per_page }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.author %}&author={{ request.GET.author }}{% endif %}{% if request.GET.min_pages %}&min_pages={{ request.GET.min_pages }}{% endif %}{% if request.GET.max_pages %}&max_pages={{ request.GET.max_pages }}{% endif %}{% if request.GET.start_date %}&start_date={{ request.GET.start_date }}{% endif %}{% if request.GET.end_date %}&end_date={{ request.GET.end_date }}{% endif %}{% if request.GET.availability %}&availability={{ request.GET.availability }}{% endif %}">{{ num }}</a>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if books.has_next %}
+                        <li class="page-item">
+                            <a class="page-link"
+                               href="?page={{ books.next_page_number }}&sort={{ sort_by }}&order={{ order }}&items_per_page=
+
+
+
+                                       {{ items_per_page }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.author %}&author={{ request.GET.author }}{% endif %}{% if request.GET.min_pages %}&min_pages={{ request.GET.min_pages }}{% endif %}{% if request.GET.max_pages %}&max_pages={{ request.GET.max_pages }}{% endif %}{% if request.GET.start_date %}&start_date={{ request.GET.start_date }}{% endif %}{% if request.GET.end_date %}&end_date={{ request.GET.end_date }}{% endif %}{% if request.GET.availability %}&availability={{ request.GET.availability }}{% endif %}">Наступна</a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link"
+                               href="?page={{ books.paginator.num_pages }}&sort={{ sort_by }}&order={{ order }}&items_per_page=
+
+
+
+                                       {{ items_per_page }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.author %}&author={{ request.GET.author }}{% endif %}{% if request.GET.min_pages %}&min_pages={{ request.GET.min_pages }}{% endif %}{% if request.GET.max_pages %}&max_pages={{ request.GET.max_pages }}{% endif %}{% if request.GET.start_date %}&start_date={{ request.GET.start_date }}{% endif %}{% if request.GET.end_date %}&end_date={{ request.GET.end_date }}{% endif %}{% if request.GET.availability %}&availability={{ request.GET.availability }}{% endif %}">Остання</a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        {% endif %}
+    </div>
+
+    <div class="row justify-content-center mb-3">
+        <div class="col-md-3 text-center">
+            <select class="form-select" id="itemsPerPage" onchange="updateItemsPerPage(this.value)">
+                <option value="10" {% if items_per_page == 10 %}selected{% endif %}>10 книг на сторінці</option>
+                <option value="20" {% if items_per_page == 20 %}selected{% endif %}>20 книг на сторінці</option>
+                <option value="50" {% if items_per_page == 50 %}selected{% endif %}>50 книг на сторінці</option>
+                <option value="100" {% if items_per_page == 100 %}selected{% endif %}>100 книг на сторінці</option>
+            </select>
+        </div>
+    </div>
+
+    <script>
+        function updateItemsPerPage(value) {
+            const url = new URL(window.location.href);
+            url.searchParams.set('items_per_page', value);
+            window.location.href = url.toString();
+        }
+    </script>
+{% endblock %} 

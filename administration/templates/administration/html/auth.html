@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+{% block title %}Реєстрація{% endblock %}
+{% block btn-login %}
+    <a class="btn btn-primary" href="{% url 'login' %}">Увійти</a>
+{% endblock %}
+{% block section %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-6 col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white text-center py-3">
+                    <h3 class="mb-0">Реєстрація в системі</h3>
+                </div>
+                <div class="card-body p-4">
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="email" name="email" placeholder="example@mail.com" required oninvalid="this.setCustomValidity('Будь ласка заповніть це поле!')" oninput="this.setCustomValidity('')">
+                        </div>
+                        <div class="mb-3">
+                            <label for="username" class="form-label">Логін</label>
+                            <input type="text" class="form-control" id="username" name="username" placeholder="Ваш логін" required oninvalid="this.setCustomValidity('Будь ласка заповніть це поле!')" oninput="this.setCustomValidity('')">
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-6 mb-3 mb-md-0">
+                                <label for="firstName" class="form-label">Ім'я</label>
+                                <input type="text" class="form-control" id="firstName" name="firstName" required oninvalid="this.setCustomValidity('Будь ласка заповніть це поле!')" oninput="this.setCustomValidity('')">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="lastName" class="form-label">Прізвище</label>
+                                <input type="text" class="form-control" id="lastName" name="lastName" required oninvalid="this.setCustomValidity('Будь ласка заповніть це поле!')" oninput="this.setCustomValidity('')">
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="birthDate" class="form-label">Дата рождения</label>
+                            <input type="date" class="form-control" id="birthDate" name="birthDate" required oninvalid="this.setCustomValidity('Будь ласка заповніть це поле!')" oninput="this.setCustomValidity('')">
+                        </div>
+                        <div class="mb-3">
+                            <label for="password" class="form-label">Придумайте пароль</label>
+                            <input type="password" class="form-control" id="password" name="password" required oninvalid="this.setCustomValidity('Будь ласка заповніть це поле!')" oninput="this.setCustomValidity('')">
+                        </div>
+                        <div class="mb-4">
+                            <label for="confirmPassword" class="form-label">Повторіть пароль</label>
+                            <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" required oninvalid="this.setCustomValidity('Будь ласка заповніть це поле!')" oninput="this.setCustomValidity('')">
+                        </div>
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary btn-lg">Зареєструватися</button>
+                        </div>
+                    </form>
+                </div>
+                <div class="card-footer text-center py-3 bg-light">
+                    <p class="mb-0">Вже є акаунт? <a href="{% url 'login' %}" class="text-primary">Увійти</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

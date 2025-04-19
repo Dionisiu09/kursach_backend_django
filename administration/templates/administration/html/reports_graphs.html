@@ -1,0 +1,274 @@
+{% extends 'base.html' %}
+
+{% block title %}Звіти в графіках{% endblock %}
+
+{% block section %}
+<div class="container mt-4">
+    <h1 class="mb-4">Звіти</h1>
+    <div class="mb-4">
+        <div class="btn-group" role="group">
+            <a href="?period=today" class="btn btn-outline-primary {% if period == 'today' %}active{% endif %}">Сьогодні</a>
+            <a href="?period=week" class="btn btn-outline-primary {% if period == 'week' %}active{% endif %}">Тиждень</a>
+            <a href="?period=month" class="btn btn-outline-primary {% if period == 'month' %}active{% endif %}">Місяць</a>
+            <a href="?period=year" class="btn btn-outline-primary {% if period == 'year' %}active{% endif %}">Рік</a>
+            <a href="?period=all" class="btn btn-outline-primary {% if period == 'all' %}active{% endif %}">Весь час</a>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Книги</h5>
+                    <p class="card-text display-4">{{ books_count }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Автори</h5>
+                    <p class="card-text display-4">{{ authors_count }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Жанри</h5>
+                    <p class="card-text display-4">{{ genres_count }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Користувачі</h5>
+                    <p class="card-text display-4">{{ users_count }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Активні бронювання</h5>
+                    <p class="card-text display-4">{{ reservations_count }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Книги на руках</h5>
+                    <p class="card-text display-4">{{ loans_count }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Доступність</h5>
+                    <p class="card-text">
+                        <span class="text-success">{{ available_books }}</span> з 
+                        <span class="text-primary">{{ total_books }}</span> книг доступно
+                    </p>
+                    <div class="progress">
+                        <div class="progress-bar" role="progressbar" 
+                             style="width: {{ availability_percentage }}%">
+                            {{ availability_percentage }}%
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Книги за жанрами</h5>
+                    <canvas id="booksByGenreChart"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Книги за авторами</h5>
+                    <canvas id="booksByAuthorChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Активні бронювання за датами</h5>
+                    <canvas id="reservationsByDateChart"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Книги на руках за датами</h5>
+                    <canvas id="loansByDateChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Рух книг</h5>
+                    <canvas id="inventoryMovementsChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    const booksByGenreData = {{ books_by_genre|safe }};
+    new Chart(document.getElementById('booksByGenreChart'), {
+        type: 'pie',
+        data: {
+            labels: booksByGenreData.map(item => item.genre__genre_name),
+            datasets: [{
+                data: booksByGenreData.map(item => item.count),
+                backgroundColor: [
+                    '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF',
+                    '#FF9F40', '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0'
+                ]
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'right'
+                }
+            }
+        }
+    });
+
+    const booksByAuthorData = {{ books_by_author|safe }};
+    new Chart(document.getElementById('booksByAuthorChart'), {
+        type: 'bar',
+        data: {
+            labels: booksByAuthorData.map(item => item.author__last_name),
+            datasets: [{
+                label: 'Кількість книг',
+                data: booksByAuthorData.map(item => item.count),
+                backgroundColor: '#36A2EB'
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+
+    const reservationsByDateData = {{ reservations_by_date|safe }};
+    new Chart(document.getElementById('reservationsByDateChart'), {
+        type: 'line',
+        data: {
+            labels: reservationsByDateData.map(item => item.date),
+            datasets: [{
+                label: 'Бронювання',
+                data: reservationsByDateData.map(item => item.count),
+                borderColor: '#FF6384',
+                tension: 0.1
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+
+    const loansByDateData = {{ loans_by_date|safe }};
+    new Chart(document.getElementById('loansByDateChart'), {
+        type: 'line',
+        data: {
+            labels: loansByDateData.map(item => item.date),
+            datasets: [{
+                label: 'Видачі',
+                data: loansByDateData.map(item => item.count),
+                borderColor: '#4BC0C0',
+                tension: 0.1
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+
+    const inventoryData = {{ inventory_movements|safe }};
+    const dates = [...new Set(inventoryData.map(item => item.date))].sort();
+    
+    new Chart(document.getElementById('inventoryMovementsChart'), {
+        type: 'line',
+        data: {
+            labels: dates,
+            datasets: [
+                {
+                    label: 'Поступлення',
+                    data: dates.map(date => {
+                        const item = inventoryData.find(i => i.date === date && i.movement_type === 'supply');
+                        return item ? item.count : 0;
+                    }),
+                    borderColor: '#4BC0C0',
+                    backgroundColor: 'rgba(75, 192, 192, 0.1)',
+                    fill: true
+                },
+                {
+                    label: 'Списання',
+                    data: dates.map(date => {
+                        const item = inventoryData.find(i => i.date === date && i.movement_type === 'discard');
+                        return item ? -item.count : 0;
+                    }),
+                    borderColor: '#FF6384',
+                    backgroundColor: 'rgba(255, 99, 132, 0.1)',
+                    fill: true
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            interaction: {
+                intersect: false,
+                mode: 'index'
+            },
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+</script>
+{% endblock %} 

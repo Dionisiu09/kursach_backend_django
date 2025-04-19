@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Додавання автора{% endblock %}
+
+{% block section %}
+<div class="container mt-4">
+    <h1 class="mb-4">Додавання нового автора</h1>
+    
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <a href="{% url 'add_book' %}" class="btn btn-secondary">
+                <i class="bi bi-arrow-left"></i> Повернутися до додавання книги
+            </a>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-md-6 mx-auto">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Інформація про автора</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="first_name" class="form-label">Ім'я <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="first_name" name="first_name" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="last_name" class="form-label">Прізвище <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="last_name" name="last_name" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="patronymic" class="form-label">По батькові</label>
+                            <input type="text" class="form-control" id="patronymic" name="patronymic">
+                        </div>
+                        
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a href="{% url 'add_book' %}" class="btn btn-outline-secondary">Скасувати</a>
+                            <button type="submit" class="btn btn-primary">Додати автора</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

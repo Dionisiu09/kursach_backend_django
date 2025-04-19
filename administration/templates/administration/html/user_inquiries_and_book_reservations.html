@@ -1,0 +1,291 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Запити користувачів та бронювання книг{% endblock %}
+
+{% block section %}
+<div class="container mt-4">
+    <h2 class="mb-4">Запити користувачів та бронювання книг</h2>
+
+    <ul class="nav nav-tabs mb-4" id="myTab" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link {% if active_tab == 'inquiries' %}active{% endif %}" id="inquiries-tab" data-bs-toggle="tab" data-bs-target="#inquiries" type="button" role="tab" aria-controls="inquiries" aria-selected="{% if active_tab == 'inquiries' %}true{% else %}false{% endif %}">Запити користувачів</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link {% if active_tab == 'reservations' %}active{% endif %}" id="reservations-tab" data-bs-toggle="tab" data-bs-target="#reservations" type="button" role="tab" aria-controls="reservations" aria-selected="{% if active_tab == 'reservations' %}true{% else %}false{% endif %}">Бронювання книг</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link {% if active_tab == 'loans' %}active{% endif %}" id="loans-tab" data-bs-toggle="tab" data-bs-target="#loans" type="button" role="tab" aria-controls="loans" aria-selected="{% if active_tab == 'loans' %}true{% else %}false{% endif %}">Видані книги</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link {% if active_tab == 'issue-book' %}active{% endif %}" id="issue-book-tab" data-bs-toggle="tab" data-bs-target="#issue-book" type="button" role="tab" aria-controls="issue-book" aria-selected="{% if active_tab == 'issue-book' %}true{% else %}false{% endif %}">Видати книгу</button>
+        </li>
+    </ul>
+
+    <div class="tab-content" id="myTabContent">
+        <div class="tab-pane fade {% if active_tab == 'inquiries' %}show active{% endif %}" id="inquiries" role="tabpanel" aria-labelledby="inquiries-tab">
+            <div class="card">
+                <div class="card-header bg-light">
+                    <div class="row">
+                        <div class="col">
+                            <h5 class="mb-0">Повідомлення від користувачів</h5>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    {% if contact_messages %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Дата</th>
+                                        <th>Ім'я</th>
+                                        <th>Email</th>
+                                        <th>Тема</th>
+                                        <th style="width: 30%;">Повідомлення</th>
+                                        <th>Статус</th>
+                                        <th>Дії</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for message in contact_messages %}
+                                        <tr {% if not message.is_read %}class="table-warning"{% endif %}>
+                                            <td>{{ message.created_at|date:"d.m.Y H:i" }}</td>
+                                            <td>{{ message.name }}</td>
+                                            <td>{{ message.email }}</td>
+                                            <td>{{ message.subject }}</td>
+                                            <td style="max-width: 400px; white-space: pre-wrap; word-break: break-word;">{{ message.message }}</td>
+                                            <td>
+                                                {% if message.is_read %}
+                                                    <span class="badge bg-success">Прочитано</span>
+                                                {% else %}
+                                                    <span class="badge bg-warning text-dark">Не прочитано</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                <form method="post" action="{% url 'user_inquiries' %}">
+                                                    {% csrf_token %}
+                                                    <input type="hidden" name="action" value="toggle_read">
+                                                    <input type="hidden" name="message_id" value="{{ message.id }}">
+                                                    {% if message.is_read %}
+                                                        <button type="submit" class="btn btn-sm btn-outline-warning">Позначити як непрочитане</button>
+                                                    {% else %}
+                                                        <button type="submit" class="btn btn-sm btn-outline-success">Позначити як прочитане</button>
+                                                    {% endif %}
+                                                </form>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <p class="text-muted">Немає запитів від користувачів.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-pane fade {% if active_tab == 'reservations' %}show active{% endif %}" id="reservations" role="tabpanel" aria-labelledby="reservations-tab">
+            <div class="card">
+                <div class="card-header bg-light">
+                    <div class="row">
+                        <div class="col">
+                            <h5 class="mb-0">Активні бронювання книг</h5>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    {% if active_reservations %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Дата бронювання</th>
+                                        <th>Користувач</th>
+                                        <th>Книга</th>
+                                        <th>Автор</th>
+                                        <th>Статус</th>
+                                        <th>Дії</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for reservation in active_reservations %}
+                                        <tr>
+                                            <td>{{ reservation.reservation_date|date:"d.m.Y H:i" }}</td>
+                                            <td>{{ reservation.user.username }} ({{ reservation.user.first_name }} {{ reservation.user.last_name }})</td>
+                                            <td>{{ reservation.book.title }}</td>
+                                            <td>{{ reservation.book.author }}</td>
+                                            <td>
+                                                <span class="badge bg-info">{{ reservation.get_status_display }}</span>
+                                            </td>
+                                            <td>
+                                                <form method="post" action="{% url 'user_inquiries' %}">
+                                                    {% csrf_token %}
+                                                    <input type="hidden" name="action" value="issue_reserved_book">
+                                                    <input type="hidden" name="reservation_id" value="{{ reservation.id }}">
+                                                    <button type="submit" class="btn btn-sm btn-primary">
+                                                        Видати книгу
+                                                    </button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <p class="text-muted">Немає активних бронювань.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-pane fade {% if active_tab == 'loans' %}show active{% endif %}" id="loans" role="tabpanel" aria-labelledby="loans-tab">
+            <div class="card">
+                <div class="card-header bg-light">
+                    <div class="row">
+                        <div class="col">
+                            <h5 class="mb-0">Видані книги</h5>
+                        </div>
+                        <div class="col-md-4">
+                            <form class="d-flex" action="{% url 'user_inquiries' %}" method="get">
+                                <input type="hidden" name="tab" value="loans">
+                                <input class="form-control me-2" type="search" placeholder="Пошук по користувачу/книзі" name="loan_search" value="{{ request.GET.loan_search|default:'' }}">
+                                <button class="btn btn-outline-primary" type="submit">Пошук</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    {% if active_loans %}
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <p class="mb-0"><strong>Загальна кількість виданих книг:</strong> {{ active_loans|length }}</p>
+                            <div class="dropdown">
+                                <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="sortDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                    Сортувати
+                                </button>
+                                <ul class="dropdown-menu" aria-labelledby="sortDropdown">
+                                    <li><a class="dropdown-item" href="{% url 'user_inquiries' %}?tab=loans&loan_search={{ loan_search }}&sort=date_new">За датою (нові спочатку)</a></li>
+                                    <li><a class="dropdown-item" href="{% url 'user_inquiries' %}?tab=loans&loan_search={{ loan_search }}&sort=date_old">За датою (старі спочатку)</a></li>
+                                    <li><a class="dropdown-item" href="{% url 'user_inquiries' %}?tab=loans&loan_search={{ loan_search }}&sort=user">За ім'ям користувача</a></li>
+                                    <li><a class="dropdown-item" href="{% url 'user_inquiries' %}?tab=loans&loan_search={{ loan_search }}&sort=book">За назвою книги</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Дата видачі</th>
+                                        <th>Користувач</th>
+                                        <th>Книга</th>
+                                        <th>Автор</th>
+                                        <th>Кількість</th>
+                                        <th>Дії</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for loan in active_loans %}
+                                        <tr>
+                                            <td>{{ loan.loan_date|date:"d.m.Y H:i" }}</td>
+                                            <td>{{ loan.user.username }} ({{ loan.user.first_name }} {{ loan.user.last_name }})</td>
+                                            <td>{{ loan.book.title }}</td>
+                                            <td>{{ loan.book.author }}</td>
+                                            <td>{{ loan.quantity }}</td>
+                                            <td>
+                                                <form method="post" action="{% url 'user_inquiries' %}">
+                                                    {% csrf_token %}
+                                                    <input type="hidden" name="action" value="mark_as_returned">
+                                                    <input type="hidden" name="loan_id" value="{{ loan.id }}">
+                                                    <button type="submit" class="btn btn-sm btn-success">
+                                                        Позначити як повернену
+                                                    </button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <p class="text-muted">Немає виданих книг.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-pane fade {% if active_tab == 'issue-book' %}show active{% endif %}" id="issue-book" role="tabpanel" aria-labelledby="issue-book-tab">
+            <div class="card">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">Видати книгу напряму</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" action="{% url 'user_inquiries' %}" class="row g-3">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="issue_book_directly">
+                        
+                        <div class="col-md-6">
+                            <label for="user" class="form-label">Користувач</label>
+                            <select class="form-select" id="user" name="user_id" required>
+                                <option value="" selected disabled>Оберіть користувача</option>
+                                {% for user in users %}
+                                    <option value="{{ user.id }}">{{ user.username }} ({{ user.first_name }} {{ user.last_name }})</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label for="book" class="form-label">Книга</label>
+                            <select class="form-select" id="book" name="book_id" required>
+                                <option value="" selected disabled>Оберіть книгу</option>
+                                {% for book in books %}
+                                    <option value="{{ book.id }}">{{ book.title }} ({{ book.author }})</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label for="return_date" class="form-label">Дата повернення</label>
+                            <input type="date" class="form-control" id="return_date" name="return_date" required>
+                        </div>
+                        
+                        <div class="col-12 mt-4">
+                            <button type="submit" class="btn btn-primary">Видати книгу</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if messages %}
+<div class="toast-container position-fixed bottom-0 end-0 p-3">
+    {% for message in messages %}
+    <div class="toast show" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-header {% if message.tags == 'success' %}bg-success text-white{% elif message.tags == 'error' %}bg-danger text-white{% else %}bg-primary text-white{% endif %}">
+            <strong class="me-auto">Повідомлення</strong>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body">
+            {{ message }}
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        setTimeout(function() {
+            document.querySelectorAll('.toast').forEach(function(toast) {
+                var toastInstance = new bootstrap.Toast(toast);
+                toastInstance.hide();
+            });
+        }, 5000);
+    });
+</script>
+{% endblock %}

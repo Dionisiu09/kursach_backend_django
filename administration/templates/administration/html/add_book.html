@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Додавання книги{% endblock %}
+
+{% block section %}
+<div class="container mt-4">
+    <h1 class="mb-4">Додавання нової книги</h1>
+    
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="d-flex">
+                <a href="{% url 'catalog' %}" class="btn btn-secondary me-2">
+                    <i class="bi bi-arrow-left"></i> Повернутися до каталогу
+                </a>
+                <a href="{% url 'add_author' %}" class="btn btn-outline-primary me-2">
+                    <i class="bi bi-person-plus"></i> Додати нового автора
+                </a>
+                <a href="{% url 'add_genre' %}" class="btn btn-outline-info">
+                    <i class="bi bi-bookmark-plus"></i> Додати новий жанр
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <form method="post" enctype="multipart/form-data" class="mb-4">
+        {% csrf_token %}
+        <div class="row">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Інформація про книгу</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label for="title" class="form-label">Назва книги <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="title" name="title" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="author" class="form-label">Автор <span class="text-danger">*</span></label>
+                            <select class="form-select" id="author" name="author" required>
+                                <option value="" selected disabled>Оберіть автора</option>
+                                {% for author in authors %}
+                                    <option value="{{ author.id }}">{{ author }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="genre" class="form-label">Жанр <span class="text-danger">*</span></label>
+                            <select class="form-select" id="genre" name="genre" required>
+                                <option value="" selected disabled>Оберіть жанр</option>
+                                {% for genre in genres %}
+                                    <option value="{{ genre.id }}">{{ genre.genre_name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="publication_date" class="form-label">Дата публікації <span class="text-danger">*</span></label>
+                            <input type="date" class="form-control" id="publication_date" name="publication_date" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="page_count" class="form-label">Кількість сторінок <span class="text-danger">*</span></label>
+                            <input type="number" class="form-control" id="page_count" name="page_count" min="1" required>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card mb-3">
+                    <div class="card-header">
+                        <h5 class="mb-0">Обкладинка</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label for="cover_image" class="form-label">Завантажити обкладинку</label>
+                            <input type="file" class="form-control" id="cover_image" name="cover_image" accept="image/*">
+                            <small class="form-text text-muted">Підтримувані формати: JPG, PNG, WEBP. Рекомендований розмір: 300x450 пікселів.</small>
+                        </div>
+                        
+                        <div class="text-center mt-3">
+                            <img id="cover_preview" src="https://placehold.co/300x450?text=Обкладинка" alt="Попередній перегляд обкладинки" class="img-thumbnail">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Інвентар</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label for="supply_quantity" class="form-label">Кількість примірників <span class="text-danger">*</span></label>
+                            <input type="number" class="form-control" id="supply_quantity" name="supply_quantity" min="0" value="1" required>
+                            <small class="form-text text-muted">Вкажіть кількість примірників книги, які додаються до бібліотеки.</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+            <a href="{% url 'catalog' %}" class="btn btn-outline-secondary">Скасувати</a>
+            <button type="submit" class="btn btn-primary">Додати книгу</button>
+        </div>
+    </form>
+</div>
+
+<script>
+    document.getElementById('cover_image').onchange = function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('cover_preview').src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+</script>
+{% endblock %}

@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+{% block title %}
+Головна
+{% endblock %}
+
+{% block section %}
+    <section class="hero-section">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-6">
+                    <h1 class="display-4 fw-bold mb-4">Ласкаво просимо до нашої бібліотеки</h1>
+                    <p class="lead mb-4">Відкрийте для себе світ знань і пригод у нашій великій колекції книг</p>
+                    <a href="{% url 'catalog' %}" class="btn btn-primary btn-lg">Почати пошук</a>
+                </div>
+                <div class="col-lg-6">
+                    <img src="https://placehold.co/600x400" alt="Бібліотека" class="img-fluid rounded">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section-padding">
+        <div class="container">
+            <h2 class="text-center mb-5">Популярні книги</h2>
+            <div class="row">
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100">
+                        <img src="https://placehold.co/400x250" class="card-img-top" alt="Книга">
+                        <div class="card-body">
+                            <h5 class="card-title">Українська класика</h5>
+                            <p class="card-text">Наша колекція української літератури містить твори Лесі Українки, Івана Франка, Тараса Шевченка та інших видатних авторів, що формують культурну спадщину нашого народу.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100">
+                        <img src="https://placehold.co/400x250" class="card-img-top" alt="Книга">
+                        <div class="card-body">
+                            <h5 class="card-title">Навчальна література</h5>
+                            <p class="card-text">Широкий вибір підручників, посібників та наукових праць для студентів усіх спеціальностей. Постійно оновлюємо фонд актуальними виданнями з різних галузей знань.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100">
+                        <img src="https://placehold.co/400x250" class="card-img-top" alt="Книга">
+                        <div class="card-body">
+                            <h5 class="card-title">Світова література</h5>
+                            <p class="card-text">Зібрання найкращих творів світової літератури в оригіналі та перекладах. Від класики до сучасних бестселерів - кожен знайде книгу до душі.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section-padding bg-light">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-6">
+                    <h2 class="mb-4">Про нашу бібліотеку</h2>
+                    <p class="mb-4">Бібліотека LIBRARYHUB - це сучасний інформаційний та культурний центр, що поєднує традиції книгозбірні з інноваційними технологіями. Наш фонд налічує понад 500 000 видань різними мовами, включаючи рідкісні та цінні примірники.</p>
+                    <p>Ми пропонуємо не лише фізичні книги, а й доступ до електронних ресурсів, аудіокниг та періодичних видань. Наші читальні зали обладнані комфортними робочими місцями з доступом до мережі Інтернет. Регулярно проводимо літературні вечори, презентації книг та зустрічі з авторами.</p>
+                </div>
+                <div class="col-lg-6">
+                    <img src="https://placehold.co/600x400" alt="Про нас" class="img-fluid rounded">
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock %}

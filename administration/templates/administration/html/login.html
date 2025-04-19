@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+
+{% block title %}Авторизація{% endblock %}
+
+{% block btn-login %}
+    <a class="btn btn-primary" href="{% url 'auth' %}">Зареєструватися</a>
+{% endblock %}
+
+{% block section %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-6 col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white text-center py-3">
+                    <h3 class="mb-0">Вхід до системи</h3>
+                </div>
+                <div class="card-body p-4">
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <div class="mb-3">
+                            <label for="login" class="form-label">Email або Логін</label>
+                            <input type="text" class="form-control" id="login" name="login" placeholder="example@mail.com / login" required oninvalid="this.setCustomValidity('Будь ласка заповніть це поле!')" oninput="this.setCustomValidity('')">
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="password" class="form-label">Пароль</label>
+                            <input type="password" class="form-control" id="password" name="password" placeholder="Ми не підглядаємо чесно-чесно:)" required oninvalid="this.setCustomValidity('Будь ласка заповніть це поле!')" oninput="this.setCustomValidity('')">
+                        </div>
+                        
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary btn-lg">Увійти</button>
+                        </div>
+                    </form>
+                </div>
+                <div class="card-footer text-center py-3 bg-light">
+                    <p class="mb-0">Ще немає акаунта? <a href="{% url 'auth' %}" class="text-primary">Зареєструватися</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
